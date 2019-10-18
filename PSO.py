@@ -1,6 +1,10 @@
 import math
 
 #  converted from AnntennaArray.java
+
+MIN_FLOAT = 2.2250738585072014e-308
+MAX_FLOAT = 1.7976931348623157e+308
+
 def bounds(nAntennae) :
     bnds = []
     dimBnd = [0.0, (nAntennae /2)]
@@ -16,7 +20,7 @@ def isValid(design, nAntennae) :
     des = design[:]
     sorted(des)
     
-    if abs( des[len(des) - 1] - nAntennae / 2.0) > 1e-10 :
+    if abs(des[len(des) - 1] - nAntennae / 2.0) > 1e-10 :
         return False
     
     for i in range(len(des) - 1) :
@@ -50,9 +54,9 @@ def evaluate(design, nAntennae, steeringAngle) :
             'AntennaArray::evaluate called on design of the wrong size. Expected: ',
             nAntennae, '. Actual: ', len(design)) from error
     if isValid(design, nAntennae) == False :
-        return 1.7976931348623157e+308
+        return MAX_FLOAT
     peaks = []
-    prev = powerPeakGen(0.0, 2.2250738585072014e-308)
+    prev = powerPeakGen(0.0, MIN_FLOAT)
     current = powerPeakGen(0.0, arrayFactor(design, 0.0, steeringAngle))
 
     elevation = 0.01
@@ -67,7 +71,7 @@ def evaluate(design, nAntennae, steeringAngle) :
     peaks = sorted(peaks, key = lambda peak: peak["power"])
 
     if len(peaks) < 2 :
-        return 2.2250738585072014e-308
+        return MIN_FLOAT
 
     distanceFromSteering = abs(peaks[0]["elevation"] - steeringAngle)
 
