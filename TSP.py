@@ -1,7 +1,7 @@
 import math
 import itertools
 import random
-import copy
+import time
 
 def getCostOfRoute(route, cityList) :
         subRoutes=[]
@@ -23,7 +23,7 @@ def distanceToCost(aSet, bSet) :
     return cost
 
 def readCSV() :
-    file = open('ulysses9.csv', 'r')
+    file = open('ulysses16.csv', 'r')
     cityPositions = []
     contents = file.readlines()
     for index, line in enumerate(contents) :
@@ -38,31 +38,72 @@ def readCSV() :
     return cityPositions
 
 def intilializer(cityList) :
-    print('cityList : ', cityList)
     random.shuffle(cityList)
     return cityList
 
-def neighbourhood(route) :
+def generateNeighbourhood(route) :
     neighbourhood = []
+    clone = []
     for index1, cityA in enumerate(route) :
         for index2, cityB in enumerate(route) :
             if (index1 != index2) :   
-                clone = copy.deepcopy(route)
-                clone[index1] = cityA
-                clone[index2] = cityB
-                print('clone: ', clone)
-                neighbourhood.append(clone)
-    print('neighbourhood : ', neighbourhood)
+                clone = route[:]
+                # print('clean_clone: ', clone)
+                clone[index1] = cityB
+                clone[index2] = cityA
+                # print('clone: ', clone, index1, index2)
+                if clone not in neighbourhood :
+                    neighbourhood.append(clone)
+    # print('neighbourhood : ', neighbourhood)
     return neighbourhood
 
 def permuteRoutes(cityList) :
     return list(itertools.permutations(range(len(cityList))))
 
 def runTSP_2(graph) :
-     cityList = list(range(len(graph)))
-     route = intilializer(cityList)
-     print('route: ', route)
-     neighbourhood(route)
+    cityList = list(range(len(graph)))
+    route = intilializer(cityList)
+    print('route: ', route)
+    startTime = time.time()
+    currentTime = time.time()
+    TERMINATION_TIME = 10
+    bestCost = getCostOfRoute(route, graph)
+    bestRoute = []
+
+    while (currentTime - startTime) < TERMINATION_TIME:
+        neighbourhood = generateNeighbourhood(route)
+        print('NEW ROUTE: ', route)
+
+        previousCost = bestCost
+        for neighbour in neighbourhood : 
+            neigbourCost = getCostOfRoute(neighbour, graph) 
+            print('neigbour: ', neighbour, ' cost', neigbourCost)
+            if neigbourCost < bestCost :
+                bestCost = neigbourCost
+                bestRoute = neighbour
+                route = neighbour
+                print('route: ', route , ' cost: ', bestCost )
+        # print('bestCost: ', bestCost , ' previousCost: ', previousCost )
+        if bestCost == previousCost :
+            route = intilializer(cityList)
+        currentTime = time.time()
+        print('time left', TERMINATION_TIME - (currentTime - startTime))
+        print('bestRoute: ', bestRoute , ' bestCost: ', bestCost )
+
+def stepFunction(route, cityList,  previousCost) : 
+    neighbourhood = generateNeighbourhood(route)
+    nextRoute = []
+    bestCost = getCostOfRoute(route, cityList)
+    
+    for neighbour in neighbourhood : 
+            neigbourCost = getCostOfRoute(neighbour, cityList)
+            if neigbourCost < bestCost :
+                nextRoute = neighbour
+    
+    if bestCost == previousCost :
+        return [nextRoute, bestCost]
+    stepFunction(nextRoute, bestCost)
+
 
 def runTSP_1(routes, cityList) : 
     bestRoute = []
@@ -76,6 +117,6 @@ def runTSP_1(routes, cityList) :
     print('best route - ', bestRoute, ' cost: ', bestCost)
 
 graph = readCSV()
-routes = permuteRoutes(graph)
+# routes = permuteRoutes(graph)
 # runTSP_1(routes, graph)
 runTSP_2(graph)
