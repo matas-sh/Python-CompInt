@@ -1,4 +1,5 @@
 import math
+from random import randint
 
 #  converted from AnntennaArray.java
 
@@ -10,6 +11,8 @@ def bounds(nAntennae) :
     dimBnd = [0.0, (nAntennae /2)]
     for i in range(nAntennae) :
         bnds.append(dimBnd)
+
+    print('bounds: ', bnds)
     return bnds
 
 
@@ -25,8 +28,10 @@ def isValid(design, nAntennae) :
     
     for i in range(len(des) - 1) :
         if des[i] < bounds(nAntennae)[i][0] or des[i] > bounds(nAntennae)[i][1] :
+            print('invalid: ', des, ' out of bounds')
             return False
         if des[i+1] - des[i] < MIN_SPACING :
+            print('invalid: ', des, ' apeture spacing too small')
             return False
  
     return True
@@ -80,4 +85,18 @@ def evaluate(design, nAntennae, steeringAngle) :
             return peak["power"]
     return peak[1]["power"]
 
-print(evaluate([0.5, 1.0, 1.5], 3, 90))
+# print(evaluate([0.5, 1.0, 1.5], 3, 90))
+
+def randDesign(nAntennae) :
+    bnds = bounds(nAntennae)
+    anPos = []
+    for antennae in list(range(nAntennae)) :
+        anPos.append(randint(bnds[0][0] * 10, bnds[0][1] * 10) / 10)
+    
+    print('anPos: ', anPos)
+    if not isValid(anPos, nAntennae) :
+       anPos = randDesign(nAntennae)
+    
+    return anPos
+
+print(randDesign(3))
