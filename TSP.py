@@ -124,7 +124,7 @@ def probCityPicker(cityChoices, visited, graph, pheromoneTrails, alpha = 2, beta
     currentCity = visited[len(visited) - 1]
     currentCityPos = graph[currentCity]
 
-    print('cityChoices: ', cityChoices)
+    # print('cityChoices: ', cityChoices)
     for city in cityChoices :
         nextCityPos = graph[city]
         key = str(currentCity) + str(city) if currentCity < city else str(city) + str(currentCity)
@@ -133,34 +133,31 @@ def probCityPicker(cityChoices, visited, graph, pheromoneTrails, alpha = 2, beta
             math.pow(pheromoneLevel, alpha) * math.pow(distanceToCost(currentCityPos, nextCityPos), beta)
         )
     cumArr = [valueArr[0]]
-    print('valueArr: ', valueArr)
+    # print('valueArr: ', valueArr)
     for i, val in enumerate(valueArr) :
-        print('val', val )
+        # print('val', val )
         if i > 0 :
             cumArr.append(val + cumArr[i - 1])
-            print('cumArr.append: ', cumArr)
+            # print('cumArr.append: ', cumArr)
     r = random.random() * cumArr[len(cumArr) - 1]
 
-    print('cumArr: ', cumArr)
+    # print('cumArr: ', cumArr)
 
-    print('r: ', r)
+    # print('r: ', r)
     chosenCity = False
     for i, val in enumerate(cumArr) :
         if val >= r :
             chosenIndex = i - (len(visited) )
-            print('chosenIndex: ', chosenIndex)
-            print('cityChoices len: ', len(cityChoices))
+            # print('chosenIndex: ', chosenIndex)
+            # print('cityChoices len: ', len(cityChoices))
             chosenCity = cityChoices[chosenIndex]
-            print('chosenCit: ', chosenCity)
-            return chosenCity
-            breakpoint
-        
-        breakpoint
+            # print('chosenCit: ', chosenCity)
+    return chosenCity
 
 
 
 
-def runTSP_3Plus(graph, nStep, decayRate = 0.5, increaseRate = 1) :
+def runTSP_3Plus(graph, nStep, decayRate = 0.7, increaseRate = 1) :
     cityList = list(range(len(graph)))
     decayPheromones = lambda edgeList, decayX: {k: v * decayX for (k, v) in edgeList.items()}
     increasePheromones = lambda edge, edgeList, listLen, increaseX: { k: (v + increaseX/len(edgeList) if k == edge else v) for (k, v) in edgeList.items()}
@@ -172,10 +169,11 @@ def runTSP_3Plus(graph, nStep, decayRate = 0.5, increaseRate = 1) :
                 pheromoneKeys.append([cityA, cityB])
     
     sortedPheromoneKeys = list(map(lambda key: str(key[0]) + str(key[1]) if key[0] < key[1] else str(key[1]) + str(key[0]), pheromoneKeys))
-    print('sortedPheromoneKeys: ', list(pheromoneKeys))
+    # print('sortedPheromoneKeys: ', list(pheromoneKeys))
     pheromoneTrails = {key: 0.1 for key in sortedPheromoneKeys}
-    print('pheromoneTrails: ', pheromoneTrails)
+    # print('pheromoneTrails: ', pheromoneTrails)
 
+    subRouteFreq = {}
     i = 0
     while nStep > i :
         currentPos = randint(0, len(cityList) - 1)
@@ -184,9 +182,9 @@ def runTSP_3Plus(graph, nStep, decayRate = 0.5, increaseRate = 1) :
 
         route = [currentPos]
         visited = [currentPos]
-        print('cityChoices: ', cityChoices)
+        # print('cityChoices: ', cityChoices)
         while len(list(cityChoices)) > 0 :
-            print('cityChoices length in loop: ', cityChoices)
+            # print('cityChoices length in loop: ', cityChoices)
             currentPos = probCityPicker(cityChoices, visited, graph, pheromoneTrails)
             route.append(currentPos)
             visited.append(currentPos)
@@ -197,14 +195,35 @@ def runTSP_3Plus(graph, nStep, decayRate = 0.5, increaseRate = 1) :
         print('subRoutes: ', subRoutes)
         for edge in subRoutes :
             sorted(edge) 
-            key = str(edge[0]) + str(edge[1])
-            pheromoneTrails[key] = increasePheromones(edge, pheromoneTrails, len(route), increaseRate)
+            key = str(edge[0]) + str(edge[1]) if edge[0] < edge[1] else str(edge[1]) + str(edge[0])
+            # print('key: ', key)
+            if key in subRouteFreq :
+                subRouteFreq[key] = (1 + subRouteFreq[key]) 
+            else :
+                subRouteFreq[key] = 0
+            pheromoneTrails = increasePheromones(key, pheromoneTrails, len(route), increaseRate)
             
-        print('pheromoneTrails: ', pheromoneTrails)
+    print('pheromoneTrails: ', pheromoneTrails)
+    print('subRouteFreq: ', subRouteFreq)
+    topTenSubRoutes = [[k,v] for k,v in subRouteFreq.items()]
+    topTenSubRoutes = sorted(topTenSubRoutes, key=lambda kToVList: kToVList[1], reverse=True)
+    print('topTenSubRoutes: ',topTenSubRoutes[:10])
+    # for k, v in subRouteFreq.items() :
+    #     for i in list(range(10)) :
+    #         # print('i', i)
+    #         if len(topTenSubRoutes) > i :
+    #             print( [k, v])
+    #             if topTenSubRoutes[i][1] < v :
+    #                 topTenSubRoutes[i] = [k, v]
+    #                 break
+    #         else :
+    #             topTenSubRoutes.append([k, v])
+
+    # print('top ten sub-routes: ', topTenSubRoutes)
 
 
 graph = readCSV()
-runTSP_3Plus(graph, 1)
+runTSP_3Plus(graph, 50)
 # routes = permuteRoutes(graph)
 # runTSP_1(routes, graph)
 # runTSP_2(graph)
