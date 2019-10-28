@@ -5,6 +5,7 @@ from random import randint
 
 MIN_FLOAT = 2.2250738585072014e-308
 MAX_FLOAT = 1.7976931348623157e+308
+MIN_SPACING = 0.25
 
 def bounds(nAntennae) :
     bnds = []
@@ -17,12 +18,12 @@ def bounds(nAntennae) :
 
 
 def isValid(design, nAntennae) :
-    MIN_SPACING = 0.25
+
     if not len(design) == nAntennae:
         return False
     des = design[:]
-    sorted(des)
-    
+    des = sorted(des)
+    print('des: ', des)
     if abs(des[len(des) - 1] - nAntennae / 2.0) > 1e-10 :
         return False
     
@@ -89,11 +90,20 @@ def evaluate(design, nAntennae, steeringAngle) :
 
 def randDesign(nAntennae) :
     bnds = bounds(nAntennae)
-    anPos = []
-    for antennae in list(range(nAntennae)) :
-        anPos.append(randint(bnds[0][0] * 10, bnds[0][1] * 10) / 10)
-    
-    print('anPos: ', anPos)
+    anPos = [bnds[0][1]]
+
+    # for antennae in list(range(nAntennae - 1)) :
+    #     anPos.append(randint(bnds[0][0] * 10, bnds[0][1] * 10) / 10)
+
+    for antennae in list(range(nAntennae - 1)) :
+        antennaePlaced = False
+        while antennaePlaced != True :
+            possiblePos = randint(bnds[0][0] * 10, bnds[0][1] * 10) / 10
+            valid = len([antennae for antennae in anPos if abs(antennae - possiblePos) < MIN_SPACING]) == 0
+            if valid :
+                antennaePlaced = True
+        anPos.append(possiblePos)
+
     if not isValid(anPos, nAntennae) :
        anPos = randDesign(nAntennae)
     
