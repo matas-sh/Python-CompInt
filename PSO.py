@@ -109,4 +109,9 @@ def randDesign(nAntennae) :
     
     return anPos
 
+def PSO(numOfParticles, nAntennae) :
+    randomDesign = randDesign(nAntennae)
+    particles = [{personalBest: False, velocity: False, position: pos PBcost: evaluate(randomDesign)} for pos in randomDesign]
+    initialiseParticles = lambda particleList, 
+
 print(randDesign(3))
