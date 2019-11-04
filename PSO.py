@@ -1,5 +1,6 @@
 import math
 from random import randint
+import random
 
 #  converted from AnntennaArray.java
 
@@ -107,11 +108,35 @@ def randDesign(nAntennae) :
     if not isValid(anPos, nAntennae) :
        anPos = randDesign(nAntennae)
     
+    anPos = sorted(anPos)
+
     return anPos
 
-def PSO(numOfParticles, nAntennae) :
-    randomDesign = randDesign(nAntennae)
-    particles = [{personalBest: False, velocity: False, position: pos PBcost: evaluate(randomDesign)} for pos in randomDesign]
-    initialiseParticles = lambda particleList, 
+def getVelocity(pos, nAntennae, initialVelocity = False, inertiaCo = 0.721, socCogCo = 1.1193) :
+    r1Vec = [random.random(0,1), random.random(0,1)]
+    r2Vec = [random.random(0,1), random.random(0,1)]
 
-print(randDesign(3))
+    if initialVelocity :
+        randPos = randDesign(nAntennae) 
+        return [abs(pos[0] - randPos[0]), abs(pos[1] - randPos[1])]
+    
+    
+
+def PSO(numOfParticles, nAntennae = 3, steeringAngle = 90) :
+    inertiaCo = 0.721
+    socialCo = 1.1193
+    cognitiveCo = 1.1193
+
+    positionList = [randDesign(nAntennae) for particle in list(range(numOfParticles))]
+    particleList = [
+        { 
+         'personalBest': evaluate(pos, nAntennae, steeringAngle),
+         'personalBestPos': pos,
+         'velocity': False,
+         'position': pos,
+        } for pos in positionList
+    ]
+    print('particleList', particleList)
+    
+
+print(PSO(3))
