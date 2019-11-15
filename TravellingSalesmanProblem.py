@@ -14,11 +14,12 @@ def getSubRoutes(route) :
     return subRoutes
 
 def getCostOfRoute(route, cityList) :
+        # print('cityList: ', cityList, 'route: ', route)
         cost=0
         subRoutes = getSubRoutes(route)
 
-        for route in subRoutes :
-            cost+= distanceToCost(cityList[route[0]], cityList[route[1]])
+        for subRoute in subRoutes :
+            cost+= distanceToCost(cityList[subRoute[0]], cityList[subRoute[1]])
         return cost
 
 def distanceToCost(aSet, bSet) :
