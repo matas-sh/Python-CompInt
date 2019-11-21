@@ -42,7 +42,7 @@ def getNewVelocity(particle, nAntennae, gBest, initialVelocity = False, inertiaC
         return iniVel
 
     r1Vec = [uniform(0,1) for el in vel]
-    r2Vec = [uniform(0,1) for el in vel]
+    r2Vec = [uniform(0,1) / 0.5 for el in vel]
  
     inertia = [inertiaCo * velEl for velEl in vel]
     cognitiveAttraction = [socCogCo * postEs for postEs in [r1Vec[index] * (pBest[index] - pos[index]) for index, el in enumerate(vel)]]
