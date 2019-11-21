@@ -25,16 +25,15 @@ def isValid(design, nAntennae) :
         return False
     des = design[:]
     des = sorted(des)
-    print('des: ', des)
     if abs(des[len(des) - 1] - nAntennae / 2.0) > 1e-10 :
         return False
     
     for i in range(len(des) - 1) :
         if des[i] < bounds(nAntennae)[i][0] or des[i] > bounds(nAntennae)[i][1] :
-            print('invalid: ', des, ' out of bounds')
+            # print('invalid: ', des, ' out of bounds')
             return False
         if des[i+1] - des[i] < MIN_SPACING :
-            print('invalid: ', des, ' apeture spacing too small')
+            # print('invalid: ', des, ' apeture spacing too small')
             return False
  
     return True
@@ -86,6 +85,5 @@ def evaluate(design, nAntennae, steeringAngle) :
     for peak in peaks :
         if abs(peak["elevation"] - steeringAngle) < distanceFromSteering :
             return peaks[0]["power"]
-    return peak[1]["power"]
+    return peaks[1]["power"]
 
-print(evaluate([0.25, 0.8, 1.5], 3, 90))
