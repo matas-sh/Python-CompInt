@@ -9,13 +9,14 @@ from random import randint
 '''
 
 
-def parentSelection(graph, population, numOfparents = 5, k = 20) :
+def parentSelection(graph, population, numOfparents = 20, k = 20) :
     parents = []
     counterA = 0
 
     while counterA < numOfparents : 
         tournamentSample = []
         counterB = 0
+        nextParentIndex = 0
 
         while counterB < k :
             candidate  = population[randint(0, len(population) - 1)]
@@ -23,10 +24,14 @@ def parentSelection(graph, population, numOfparents = 5, k = 20) :
             if candidate not in tournamentSample :
                 tournamentSample.append(candidate)
             counterB += 1
-        parent = reduce(lambda candidateA, candidateB: candidateB if getCostOfRoute(candidateA, graph) > getCostOfRoute(candidateB, graph) else candidateA, tournamentSample)
-        if parent not in parents :
-            parents.append(parent)
-            counterA += 1 
+        possibleParents = sorted(tournamentSample, key=lambda candidateA: getCostOfRoute(candidateA, graph))
+  
+        for parent in possibleParents :
+            if parent not in parents :
+                parents.append(parent)
+                counterA += 1 
+                break
+        
     # print('parents: ', parents)
     return parents
 
@@ -122,10 +127,10 @@ def recombination(parents, numOfOffspring, prob = 100) :
     else :
         offsprings = parents
 
-    print(f'parents: {parents}, offsprings: {offsprings}')
+    # print(f'parents: {parents}, offsprings: {offsprings}')
     return offsprings
 
-def runTSP_5(graph, popSize = 100, gens = 300) :
+def runTSP_5(graph, popSize = 100, gens = 100) :
     print('initialise population...')
     population = [intilializer(list(range(len(graph)))) for each in list(range(popSize))]
     firstGenPopulation = population
@@ -137,7 +142,7 @@ def runTSP_5(graph, popSize = 100, gens = 300) :
         print('evolution start...')
         parents = parentSelection(graph, population)
         # print('parents: ', parents)
-        offsprings = recombination(parents, len(parents))
+        offsprings = recombination(parents, len(parents) * 3)
         # print('offsprings: ', offsprings)
 
         for offspring in offsprings :
