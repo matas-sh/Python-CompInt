@@ -25,16 +25,15 @@ def isValid(design, nAntennae) :
         return False
     des = design[:]
     des = sorted(des)
-    print('des: ', des)
     if abs(des[len(des) - 1] - nAntennae / 2.0) > 1e-10 :
         return False
     
     for i in range(len(des) - 1) :
         if des[i] < bounds(nAntennae)[i][0] or des[i] > bounds(nAntennae)[i][1] :
-            print('invalid: ', des, ' out of bounds')
+            # print('invalid: ', des, ' out of bounds')
             return False
         if des[i+1] - des[i] < MIN_SPACING :
-            print('invalid: ', des, ' apeture spacing too small')
+            # print('invalid: ', des, ' apeture spacing too small')
             return False
  
     return True
@@ -58,9 +57,9 @@ def powerPeakGen(e, p) :
 def evaluate(design, nAntennae, steeringAngle) :
 
     if not len(design) == nAntennae :
-        raise RuntimeError(
-            'AntennaArray::evaluate called on design of the wrong size. Expected: ',
-            nAntennae, '. Actual: ', len(design)) from error
+        print('AntennaArray::evaluate called on design of the wrong size. Expected: ',
+            nAntennae, '. Actual: ', len(design))
+        exit
     if isValid(design, nAntennae) == False :
         return MAX_FLOAT
     peaks = []
@@ -78,8 +77,6 @@ def evaluate(design, nAntennae, steeringAngle) :
     peaks.append(powerPeakGen(180.0, arrayFactor(design, 180.0, steeringAngle)))
     peaks = sorted(peaks, key = lambda peak: peak["power"], reverse=True)
 
-    print('peaks: ', peaks)
-
     if len(peaks) < 2 :
         return MIN_FLOAT
 
@@ -87,7 +84,6 @@ def evaluate(design, nAntennae, steeringAngle) :
 
     for peak in peaks :
         if abs(peak["elevation"] - steeringAngle) < distanceFromSteering :
-            return peak["power"]
+            return peaks[0]["power"]
     return peaks[1]["power"]
 
-# print('design value ', evaluate([0.65, 0.95, 1.5], 3, 30))

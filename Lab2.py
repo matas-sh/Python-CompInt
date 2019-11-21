@@ -20,7 +20,7 @@ def generateNeighbourhood(route) :
                 clone = route[:]
                 clone[index1] = cityB
                 clone[index2] = cityA
-                if clone not in neighbourhood and clone.reverse() not in neighbourhood :
+                if clone not in neighbourhood :
                     neighbourhood.append(clone)
     # print('neighbourhood : ', neighbourhood)
     return neighbourhood
@@ -33,7 +33,9 @@ def runTSP_2(graph) :
     currentTime = time.time()
     TERMINATION_TIME = 10
     bestCost = getCostOfRoute(route, graph)
-    bestRoute = []
+    startRouteCost = bestCost
+    startRoute = route
+    bestRoute = None
 
     while (currentTime - startTime) < TERMINATION_TIME:
         neighbourhood = generateNeighbourhood(route)
@@ -46,11 +48,12 @@ def runTSP_2(graph) :
                 bestRoute = neighbour
                 route = neighbour
                 # print('route: ', route , ' cost: ', bestCost )
-        # print('bestCost: ', bestCost , ' previousCost: ', previousCost )
+        print('bestCost: ', bestCost , ' previousCost: ', previousCost )
         if bestCost == previousCost :
             route = intilializer(cityList)
         currentTime = time.time()
-        # print('time left', TERMINATION_TIME - (currentTime - startTime))
-        # print('bestRoute: ', bestRoute , ' bestCost: ', bestCost )
+        print('time left', TERMINATION_TIME - (currentTime - startTime))
+    print('bestRoute: ', bestRoute , ' bestCost: ', bestCost )
+    print('startRoute: ', startRoute , ' bestCost: ', startRouteCost )
 
 runTSP_2(readCSV())
