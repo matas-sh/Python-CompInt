@@ -76,7 +76,7 @@ def evaluate(design, nAntennae, steeringAngle) :
         current = nextOne
         elevation += 0.01
     peaks.append(powerPeakGen(180.0, arrayFactor(design, 180.0, steeringAngle)))
-    peaks = sorted(peaks, key = lambda peak: peak["power"])
+    peaks = sorted(peaks, key = lambda peak: peak["power"], reverse=True)
 
     if len(peaks) < 2 :
         return MIN_FLOAT
@@ -85,5 +85,7 @@ def evaluate(design, nAntennae, steeringAngle) :
 
     for peak in peaks :
         if abs(peak["elevation"] - steeringAngle) < distanceFromSteering :
-            return peak["power"]
+            return peaks[0]["power"]
     return peak[1]["power"]
+
+print(evaluate([0.25, 0.8, 1.5], 3, 90))

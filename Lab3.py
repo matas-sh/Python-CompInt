@@ -1,6 +1,6 @@
 import math
-from random import randint, random
-from AntennaeArrayProblem import evaluate, bounds, isValid
+from random import randint, uniform
+from AntennaeArrayProblem import evaluate, bounds, isValid, MIN_SPACING              
 
 '''
     Lab instructions:
@@ -27,12 +27,11 @@ def randDesign(nAntennae) :
        anPos = randDesign(nAntennae)
     
     anPos = sorted(anPos)
+    print('randDesign: ', anPos)
 
     return anPos
 
-def getNewVelocity(particle, nAntennae, gBest, initialVelocity = False, inertiaCo = 0.721, socCogCo = 1.1193) :
-    r1Vec = [random.random(), random.random()]
-    r2Vec = [random.random(), random.random()]
+def getNewVelocity(particle, nAntennae, gBest, initialVelocity = False, inertiaCo = 1/(2 * math.log(2.0)), socCogCo = ((math.log(2)) + 0.5)) :
 
     pos = particle['position']
     vel = particle['velocity']
@@ -41,17 +40,20 @@ def getNewVelocity(particle, nAntennae, gBest, initialVelocity = False, inertiaC
     if initialVelocity :
         randPos = randDesign(nAntennae) 
         iniVel = [velEl for velEl in [abs(pos[index] - randPos[index]) / 2 for index in list(range(nAntennae -1))]]
-        print('###############')
-        print('iniVel: ', iniVel)
-        print('###############')
+        # print('###############')
+        # print('iniVel: ', iniVel)
+        # print('###############')
         return iniVel
+
+    r1Vec = [uniform(0,1) for el in vel]
+    r2Vec = [uniform(0,1) for el in vel]
  
     inertia = [inertiaCo * velEl for velEl in vel]
     print('subList: ', [pBest[index] - pos[index] for index, el in enumerate(vel)])
-    cognitiveAttractionPt1 = [socCogCo * r1Vec * postEs for postEs in [pBest[index] - pos[index] for index, el in enumerate(vel)]]
-    socialAttraction = [socCogCo * float(r2Vec) * postEs for postEs in [gBest[index] - pos[index] for index, el in enumerate(vel)]]
+    cognitiveAttraction = [socCogCo * postEs for postEs in [r1Vec[index] * (pBest[index] - pos[index]) for index, el in enumerate(vel)]]
+    socialAttraction = [socCogCo * postEs for postEs in [r2Vec[index] * gBest[index] - pos[index] for index, el in enumerate(vel)]]
 
-
+    print('prev vel: ', vel)
     print('###############')
     print('inertia: ', inertia)
     print('###############')
@@ -59,21 +61,23 @@ def getNewVelocity(particle, nAntennae, gBest, initialVelocity = False, inertiaC
     print('###############')
     print('socialAttraction: ', socialAttraction)
     print('###############')
-    newVel = [newVelEl for newVelEl in [inertia[index] + cognitiveAttraction[index] + socialAttraction[index] for index in enumerate(vel)]]
+    newVel = [newVelEl for newVelEl in [inertia[index] + cognitiveAttraction[index] + socialAttraction[index] for index, el in enumerate(vel)]]
     print('newVelocity: ', newVel)  
     print('###############')
     return newVel
 
-def getNewPosition(particlePos, newVelocity) :
-    newPos = [newPos for newPos in [particlePos[index] + newVelocity[index] for index in enumerate(newVelocity)]]
+def getNewPosition(particlePos, newVelocity, nAntennae) :
+    print('oldPos: ', particlePos) 
+    newPos = [pos for pos in [particlePos[index] + el for index, el in enumerate(newVelocity)]]
+    newPos.append(nAntennae / 2)
     print('newPos: ', newPos)
     print('###############')
     return newPos
 
-def PSO(numOfParticles, numOfIterations, nAntennae = 3, steeringAngle = 90) :
+def runPSO_1(numOfParticles, numOfIterations, nAntennae = 3, steeringAngle = 90) :
 
     positionList = [randDesign(nAntennae) for particle in list(range(numOfParticles))]
-    globalBestValue = math.inf
+    globalBestValue = 100
     globalBest = False
 
     for pos in positionList :
@@ -102,27 +106,32 @@ def PSO(numOfParticles, numOfIterations, nAntennae = 3, steeringAngle = 90) :
     i = 0
     while i < numOfIterations :
         lowestInIteration = False
-        lowestInIterationValue = math.inf
+        lowestInIterationValue = 100
         for particle in particleList :
             particle['velocity'] = getNewVelocity(particle, nAntennae, globalBest)
-            particle['position'] = getNewPosition(particle.position, particle.velocity)
+            particle['position'] = getNewPosition(particle['position'], particle['velocity'], nAntennae)
+            position = particle['position']
+            print('getting here! newPos: ', position, ' nAntennae: ', nAntennae, '  valid?', isValid(position, nAntennae))
+            if isValid(position, nAntennae) :
+                particlePosValue = evaluate(position, nAntennae, steeringAngle)
             
-            if isValid(particle.position, nAntennae) :
-                particlePosValue = evaluate(particle.position, nAntennae, steeringAngle)
-            
+                print('getting here 2')
                 if particlePosValue < globalBestValue :
                     globalBestValue = particlePosValue
-                    globalBest = particle.position
+                    globalBest = position
 
-                if particlePosValue < particle.personalBest :
+                print('getting here 3')
+                if particlePosValue < particle['personalBest'] :
                     particle['personalBest'] = particlePosValue
-                    particle['personalBestPos'] = particle.position
+                    particle['personalBestPos'] = position
 
+                print('getting here 4')
                 if particlePosValue < lowestInIterationValue :
-                    lowestInIterationValue = math.inf
-                    lowestInIteration = particle.position
-        print('lowest value in iteratiom iteration: ', lowestInIterationValue, '  ', lowestInIteration)
+                    lowestInIterationValue = particlePosValue
+                    lowestInIteration = position
+            print('lowest value in iteratiom iteration: ', lowestInIterationValue, ' design: ', lowestInIteration)
         i+=1
     print('global best value: ', globalBestValue, '  ', globalBest)
 
-PSO(3, 1)
+nAntennae = 3
+runPSO_1(math.ceil(20 + math.sqrt(nAntennae)), 10, nAntennae)
