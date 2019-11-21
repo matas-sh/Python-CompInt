@@ -57,9 +57,9 @@ def powerPeakGen(e, p) :
 def evaluate(design, nAntennae, steeringAngle) :
 
     if not len(design) == nAntennae :
-        raise RuntimeError(
-            'AntennaArray::evaluate called on design of the wrong size. Expected: ',
-            nAntennae, '. Actual: ', len(design)) from error
+        print('AntennaArray::evaluate called on design of the wrong size. Expected: ',
+            nAntennae, '. Actual: ', len(design))
+        exit
     if isValid(design, nAntennae) == False :
         return MAX_FLOAT
     peaks = []
