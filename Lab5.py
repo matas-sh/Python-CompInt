@@ -1,36 +1,47 @@
-from TravellingSalesmanProblem import getCostOfRoute, readCSV
-from Lab2  import intilializer, generateNeighbourhood
+from TravellingSalesmanProblem import getCostOfRoute, readCSV, randomRouteGenerator
+from Lab2  import generateNeighbourhood
 from functools import reduce
-from random import randint 
+from random import randint, choice
 
 '''
     Lab instructions:
         https://vle.aston.ac.uk/webapps/blackboard/execute/content/file?cmd=view&content_id=_1674355_1&course_id=_25312_1&launch_in_new=true
 '''
 
+# Recombination: Order 1 Crossover
+# Recombination Probability: 100% 
+# Mutation: two op swap function, switch 2 cities at random
+# Mutation Probability: 70%
+# Parent Selection: Tournament Selection with size of 5, picking 20 parents 
+# Survivor Selection: Elitism, offsprings parents treated as population on sorted by fitness, top {populationSize} will remain
+# Selection Size: 60, 3 times the parents size
+# Population Size: 100,
+# Initialisation: create list of rotues randomly generated. some witrh duplicates
+# Termination: 200
 
-def parentSelection(graph, population, numOfparents = 20, k = 20) :
+def parentSelection(graph, population, numOfparents = 20, k = 5) :
     parents = []
-    counterA = 0
 
-    while counterA < numOfparents : 
+    while len(parents) <= numOfparents : 
         tournamentSample = []
         counterB = 0
         nextParentIndex = 0
+        pastParents = len(parents)
 
         while counterB < k :
-            candidate  = population[randint(0, len(population) - 1)]
+            candidate  = choice(population)
 
             if candidate not in tournamentSample :
                 tournamentSample.append(candidate)
             counterB += 1
-        possibleParents = sorted(tournamentSample, key=lambda candidateA: getCostOfRoute(candidateA, graph))
-  
+        possibleParents = sorted(tournamentSample, key=lambda candidate: getCostOfRoute(candidate, graph), reverse=False)
+        pastParents = len(parents)
         for parent in possibleParents :
             if parent not in parents :
                 parents.append(parent)
-                counterA += 1 
                 break
+        if pastParents == len(parents) :
+            parents.append(possibleParents[0])
         
     # print('parents: ', parents)
     return parents
@@ -130,9 +141,9 @@ def recombination(parents, numOfOffspring, prob = 100) :
     # print(f'parents: {parents}, offsprings: {offsprings}')
     return offsprings
 
-def runTSP_5(graph, popSize = 100, gens = 100) :
+def runTSP_5(graph, popSize = 100, gens = 200) :
     print('initialise population...')
-    population = [intilializer(list(range(len(graph)))) for each in list(range(popSize))]
+    population = [randomRouteGenerator(list(range(len(graph)))) for each in list(range(popSize))]
     firstGenPopulation = population
     print('firstGenPopulation: ', firstGenPopulation)
 
