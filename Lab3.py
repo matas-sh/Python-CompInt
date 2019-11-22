@@ -94,6 +94,7 @@ def runPSO_1(numOfParticles, numOfIterations, nAntennae = 3, steeringAngle = 90)
             particle['velocity'] = getNewVelocity(particle, nAntennae, globalBest, inertiaCo, socCogCo)
             particle['position'] = getNewPosition(particle['position'], particle['velocity'], nAntennae)
             position = particle['position']
+
             if isValid(position, nAntennae) :
                 particlePosValue = evaluate(position, nAntennae, steeringAngle)
             
@@ -104,10 +105,8 @@ def runPSO_1(numOfParticles, numOfIterations, nAntennae = 3, steeringAngle = 90)
                 if particlePosValue < particle['personalBest'] :
                     particle['personalBest'] = particlePosValue
                     particle['personalBestPos'] = position
-
-        print('global best value: ', globalBestValue, '  design: ', globalBest)
         i+=1
-    pprint(particleList)
+        print(f'[{i}] global best value: {globalBestValue}  design: {globalBest}')
 
 nAntennae = 3
-runPSO_1(math.ceil(20 + math.sqrt(nAntennae)), 100, nAntennae)
+runPSO_1(math.ceil(10 + math.sqrt(nAntennae)), 100, nAntennae)

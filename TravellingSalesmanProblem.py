@@ -1,8 +1,14 @@
 import math
+import random
 
 '''
     Travelling Salesman Problem represententation and it's common methods
 '''
+
+
+def randomRouteGenerator(cityList) :
+    random.shuffle(cityList)
+    return cityList
 
 def getSubRoutes(route) :
     subRoutes = []
@@ -29,8 +35,11 @@ def distanceToCost(aSet, bSet) :
     )
     return cost
 
-def readCSV() :
-    file = open('ulysses16.csv', 'r')
+def readCSV(short = False) :
+    if short :
+        file = open('ulysses9.csv', 'r')
+    else :
+        file = open('ulysses16.csv', 'r')
     cityPositions = []
     contents = file.readlines()
     for index, line in enumerate(contents) :
